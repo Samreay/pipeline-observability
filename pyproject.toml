@@ -4,4 +4,36 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "fastapi>=0.115.11",
+    "httpx>=0.28.1",
+    "loguru>=0.7.3",
+    "opentelemetry-distro>=0.51b0",
+    "opentelemetry-exporter-otlp>=1.30.0",
+    "opentelemetry-exporter-prometheus>=0.51b0",
+    "opentelemetry-instrumentation-httpx>=0.51b0",
+    "prefect>=3.2.12",
+    "prometheus-client>=0.21.1",
+    "prometheus-fastapi-instrumentator>=7.0.2",
+]
+
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.3.0",
+    "ruff>=0.5.4,<1",
+    "pre-commit>=3.7.0",
+]
+
+[tool.uv.workspace]
+members = ["projects/common", "projects/poller", "projects/receiver"]
+
+# TODO: Swap over to https://github.com/astral-sh/uv/issues/8779 when ready
+# [build-system]
+# requires = ["hatchling"]
+# build-backend = "hatchling.build"
+
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
