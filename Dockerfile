@@ -13,10 +13,9 @@ ENV UV_PROJECT_ENVIRONMENT=/usr/local/ \
 
 
 WORKDIR /workspace
-COPY pyproject.toml uv.lock /workspace/
 ARG PACKAGE
-ENV PACKAGE=$PACKAGE
-    # Install third party dependencies
+
+# Install third party dependencies
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \

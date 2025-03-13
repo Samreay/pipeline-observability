@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "common",
     "fastapi>=0.115.11",
     "httpx>=0.28.1",
     "loguru>=0.7.3",
@@ -14,7 +15,6 @@ dependencies = [
     "opentelemetry-instrumentation-httpx>=0.51b0",
     "prefect>=3.2.12",
     "prometheus-client>=0.21.1",
-    "prometheus-fastapi-instrumentator>=7.0.2",
 ]
 
 
@@ -26,7 +26,10 @@ dev-dependencies = [
 ]
 
 [tool.uv.workspace]
-members = ["projects/common", "projects/poller", "projects/receiver"]
+members = ["projects/*"]
+
+[tool.uv.sources]
+common = { workspace = true }
 
 # TODO: Swap over to https://github.com/astral-sh/uv/issues/8779 when ready
 # [build-system]

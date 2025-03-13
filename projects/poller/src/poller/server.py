@@ -2,12 +2,10 @@ import asyncio
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 import os
-from prometheus_fastapi_instrumentator import Instrumentator
 from loguru import logger
 from opentelemetry.instrumentation.httpx import HTTPXClientInstrumentor
 import httpx
-
-HTTPXClientInstrumentor().instrument()  # This ensures httpx requests are traced
+from common.prom import PrometheusMiddleware, metrics
 
 
 endpoint = os.getenv("RECEIVER_ENDPOINT", "http://localhost:8000")
@@ -40,8 +38,11 @@ async def lifespan(app: FastAPI):
     future.cancel()
 
 
+HTTPXClientInstrumentor().instrument()  # This ensures httpx requests are traced
+service = "poller"
 app = FastAPI(lifespan=lifespan)
-Instrumentator().instrument(app).expose(app)
+app.add_middleware(PrometheusMiddleware, service=service)
+app.add_route("/metrics", metrics)
 
 
 @app.get("/")
