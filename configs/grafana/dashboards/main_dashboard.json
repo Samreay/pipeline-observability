@@ -118,7 +118,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "function_invocations_in_progress{service=~\"$service_name\", function!=\"GET /metrics\"}",
+          "expr": "function_invocations_in_progress{service=~\"$service_name\", function!=\"GET_/metrics\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -684,6 +684,6 @@
   "timezone": "",
   "title": "Glorious Dashboard",
   "uid": "liz0yRCZz",
-  "version": 5,
+  "version": 6,
   "weekStart": ""
 }
