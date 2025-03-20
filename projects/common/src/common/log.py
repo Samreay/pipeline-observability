@@ -48,8 +48,8 @@ def sink_serializer(
         "level": level,
         "caller": f"{record['file'].name}:{record['line']}",
         "message": record["message"],
-        "name": record["name"],
-        "module": record["module"],
+        # "name": record["name"],
+        # "module": record["module"],
     }
     LOG_TOTAL.labels(service=service, level=level).inc()
     if "exception" in record:
