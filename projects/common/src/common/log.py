@@ -17,6 +17,22 @@ from common.prom import LOG_TOTAL
 if TYPE_CHECKING:
     from loguru import Message
 
+LOGGERS_TO_IGNORE = [
+    name
+    for name in logging.root.manager.loggerDict
+    if any(x in name.lower() for x in ("uvicorn", "gunicorn", "pulsar"))
+]
+LOGGERS_TO_IGNORE += [
+    "gunicorn",
+    "gunicorn.access",
+    "gunicorn.error",
+    "uvicorn",
+    "uvicorn.access",
+    "uvicorn.error",
+    "httpx",
+    "httpx._client",
+]
+
 
 def sink_serializer(
     service: str,
@@ -32,6 +48,8 @@ def sink_serializer(
         "level": level,
         "caller": f"{record['file'].name}:{record['line']}",
         "message": record["message"],
+        "name": record["name"],
+        "module": record["module"],
     }
     LOG_TOTAL.labels(service=service, level=level).inc()
     if "exception" in record:
@@ -79,6 +97,8 @@ def sink_serializer(
 
 class InterceptHandler(logging.Handler):
     def emit(self, record: logging.LogRecord) -> None:
+        if record.name in LOGGERS_TO_IGNORE:
+            return
         try:
             level = logger.level(record.levelname).name
         except ValueError:
@@ -97,14 +117,7 @@ class InterceptHandler(logging.Handler):
 
 
 def configure_logging(service: str) -> None:
-    loggers = [
-        name
-        for name in logging.root.manager.loggerDict
-        if any(x in name.lower() for x in ("uvicorn", "gunicorn", "pulsar"))
-    ]
-    loggers += ["gunicorn", "gunicorn.access", "gunicorn.error", "uvicorn", "uvicorn.access", "uvicorn.error"]
-
-    for name in loggers:
+    for name in LOGGERS_TO_IGNORE:
         logga = logging.getLogger(name)
         logga.handlers = []
 

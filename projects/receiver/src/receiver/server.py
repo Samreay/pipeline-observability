@@ -15,6 +15,7 @@ app.add_route("/metrics", metrics)
 @app.get("/")
 async def read_root():
     logger.info("Received request for a new random number. How exciting!")
+    await asyncio.sleep(0.1)
     return {"value": randint(0, 100)}
 
 
