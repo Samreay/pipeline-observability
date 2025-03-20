@@ -113,7 +113,7 @@
           },
           "direction": "backward",
           "editorMode": "code",
-          "expr": "sum(count_over_time({job=\"containerlogs\"} |~ \"$search\"[$__interval]))",
+          "expr": "sum(count_over_time({service_name=~\"$service_name\"} |~ \"$search\"[$__interval]))",
           "queryType": "range",
           "refId": "A"
         }
@@ -334,7 +334,7 @@
           },
           "direction": "backward",
           "editorMode": "code",
-          "expr": "{job=\"containerlogs\", service_name=~\"$service_name\"} |~ \"$search\" | json",
+          "expr": "{service_name=~\"$service_name\"} |~ \"$search\" | json",
           "queryType": "range",
           "refId": "A"
         }
@@ -475,6 +475,6 @@
   "timezone": "",
   "title": "Glorious Dashboard",
   "uid": "liz0yRCZz",
-  "version": 6,
+  "version": 1,
   "weekStart": ""
 }

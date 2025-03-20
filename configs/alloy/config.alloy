@@ -1,0 +1,67 @@
+discovery.docker "flog_scrape" {
+	host             = "unix:///var/run/docker.sock"
+	refresh_interval = "5s"
+
+	filter {
+		name   = "label"
+		values = ["logging=alloy"]
+	}
+}
+
+loki.process "flog_scrape" {
+	forward_to = [loki.write.default.receiver]
+
+	stage.json {
+		drop_malformed = true
+		expressions = {
+			level = "",
+			service = "",
+		}
+	}
+
+	stage.labels {
+		values = {
+			level = "",
+			service = "",
+		}
+	}
+
+	stage.label_drop {
+		values = [ "service_name" ]
+	}
+}
+
+discovery.relabel "flog_scrape" {
+	targets = []
+
+	rule {
+		source_labels = ["__meta_docker_container_name"]
+		regex         = "/(.*)"
+		target_label  = "container"
+	}
+
+	rule {
+		source_labels = ["__meta_docker_container_log_stream"]
+		target_label  = "logstream"
+	}
+
+	rule {
+		source_labels = ["__meta_docker_container_label_logging_jobname"]
+		target_label  = "job"
+	}
+}
+
+loki.source.docker "flog_scrape" {
+	host             = "unix:///var/run/docker.sock"
+	targets          = discovery.docker.flog_scrape.targets
+	forward_to       = [loki.process.flog_scrape.receiver]
+	relabel_rules    = discovery.relabel.flog_scrape.rules
+	refresh_interval = "5s"
+}
+
+loki.write "default" {
+	endpoint {
+		url = "http://loki:3100/loki/api/v1/push"
+	}
+	external_labels = {}
+}

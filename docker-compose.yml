@@ -10,8 +10,7 @@ x-logging:
 
 x-labels:
   &default-labels
-  logging: "promtail"
-  logging_jobname: "containerlogs"
+  logging: "alloy"
 
 services:
   prometheus:
@@ -47,8 +46,6 @@ services:
       - ./configs/grafana/dashboards:/var/lib/grafana/dashboards
     networks:
       - traces
-    depends_on:
-      - tempo
     logging: *default-logging
 
 
@@ -68,19 +65,24 @@ services:
       - traces
     logging: *default-logging
 
-  promtail:
-    image:  grafana/promtail:3.4
-    container_name: promtail
+  alloy:
+    image: grafana/alloy:v1.7.4
+    container_name: alloy
+    ports:
+      - "12347:12345" # allow ui server
+      - "12348:12348"
+      - "6832:6832"
+      - "55679:55679"
+      # - "4317:4317" # otlp grpc
+      # - "4318:4318" # otlp http
     volumes:
-      - ./configs/promtail/promtail.yaml:/etc/promtail/docker-config.yaml
+      - ./configs/alloy/config.alloy:/etc/alloy/config.alloy
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock
-    command: -config.file=/etc/promtail/docker-config.yaml
-    depends_on:
-      - loki
+    command: ["run", "--server.http.listen-addr=0.0.0.0:12345", "--storage.path=/var/lib/alloy/data", "/etc/alloy/config.alloy"]
     networks:
       - traces
-    logging: *default-logging
+
 
   loki:
     image: grafana/loki:3.4
