@@ -44,6 +44,12 @@ datasources:
     derivedFields:
     - datasourceName: Tempo
       datasourceUid: tempo
-      matcherRegex: trace_id=(\w+)
+      matcherRegex: "\"trace_id\": \"(\\w+)\""
       name: traceID
       url: '$${__value.raw}'
+    - datasourceName: Tempo
+      datasourceUid: tempo
+      matcherRegex: "\"span_id\": \"(\\w+)\""
+      name: spanID
+      url: '$${__value.raw}'
+    

@@ -15,11 +15,11 @@
       }
     ]
   },
-  "description": "Loki dashboard with quick search and timeline.",
+  "description": "The Glorious Datasboard",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 2,
+  "id": 1,
   "links": [],
   "panels": [
     {
@@ -84,7 +84,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 3,
+        "h": 4,
         "w": 24,
         "x": 0,
         "y": 0
@@ -129,26 +129,34 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "fixedColor": "text",
+            "mode": "fixed"
           },
           "custom": {
             "align": "auto",
             "cellOptions": {
-              "type": "auto"
+              "type": "color-text"
             },
-            "inspect": false
+            "inspect": false,
+            "minWidth": 100
           },
-          "mappings": [],
+          "mappings": [
+            {
+              "options": {
+                "INFO": {
+                  "color": "yellow",
+                  "index": 0
+                }
+              },
+              "type": "value"
+            }
+          ],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
@@ -162,7 +170,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 89
+                "value": 113
               }
             ]
           },
@@ -189,6 +197,104 @@
                 "value": 192
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "service"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 92
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "level"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 90
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "DEBUG": {
+                        "color": "#6e6e6e",
+                        "index": 0
+                      },
+                      "ERROR": {
+                        "color": "red",
+                        "index": 4
+                      },
+                      "EXCEPTION": {
+                        "color": "red",
+                        "index": 5
+                      },
+                      "INFO": {
+                        "color": "light-blue",
+                        "index": 1
+                      },
+                      "NOTICE": {
+                        "color": "light-green",
+                        "index": 2
+                      },
+                      "WARNING": {
+                        "color": "orange",
+                        "index": 3
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text",
+                  "wrapText": false
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "caller"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 128
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "traceID"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
           }
         ]
       },
@@ -196,7 +302,7 @@
         "h": 25,
         "w": 24,
         "x": 0,
-        "y": 3
+        "y": 4
       },
       "id": 2,
       "maxDataPoints": "",
@@ -204,6 +310,7 @@
         "cellHeight": "sm",
         "footer": {
           "countRows": false,
+          "enablePagination": false,
           "fields": "",
           "reducer": [
             "sum"
@@ -211,7 +318,12 @@
           "show": false
         },
         "showHeader": true,
-        "sortBy": []
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Time"
+          }
+        ]
       },
       "pluginVersion": "11.5.2",
       "targets": [
@@ -222,7 +334,7 @@
           },
           "direction": "backward",
           "editorMode": "code",
-          "expr": "{job=\"containerlogs\", service_name=~\"$service_name\"} |~ \"$search\"",
+          "expr": "{job=\"containerlogs\", service_name=~\"$service_name\"} |~ \"$search\" | json",
           "queryType": "range",
           "refId": "A"
         }
@@ -236,20 +348,25 @@
             "format": "json",
             "jsonPaths": [
               {
-                "path": "service_name"
+                "path": ""
               }
             ],
-            "source": "labels"
+            "source": "Line"
           }
         },
         {
           "id": "organize",
           "options": {
             "excludeByName": {
-              "Line": false,
+              "Line": true,
               "id": true,
               "labelTypes": true,
               "labels": true,
+              "line": true,
+              "spanID": true,
+              "span_id": true,
+              "time": true,
+              "trace_id": true,
               "tsNs": true
             },
             "includeByName": {},
@@ -263,7 +380,9 @@
               "traceID": 2,
               "tsNs": 5
             },
-            "renameByName": {}
+            "renameByName": {
+              "Time": ""
+            }
           }
         },
         {
@@ -304,7 +423,6 @@
         "type": "textbox"
       },
       {
-        "allValue": "",
         "allowCustomValue": false,
         "current": {
           "text": [
@@ -355,8 +473,8 @@
     ]
   },
   "timezone": "",
-  "title": "Loki Dashboard",
+  "title": "Glorious Dashboard",
   "uid": "liz0yRCZz",
-  "version": 9,
+  "version": 6,
   "weekStart": ""
 }
