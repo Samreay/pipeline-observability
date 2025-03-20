@@ -13,15 +13,15 @@ app.add_route("/metrics", metrics)
 
 
 @app.get("/")
-def read_root():
+async def read_root():
     logger.info("Received request for a new random number. How exciting!")
     return {"value": randint(0, 100)}
 
 
 @app.get("/slow")
 async def read_slow():
-    logger.info("Received request for a new random number. How exciting!")
-    await asyncio.sleep(5)
+    logger.info("Received a slowwww request for a new random number. How exciting!")
+    await asyncio.sleep(4)
     return {"value": randint(0, 100)}
 
 

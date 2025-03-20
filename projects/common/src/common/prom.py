@@ -67,20 +67,10 @@ INVOCATIONS_PROCESSING_TIME = Histogram(
     labelnames=["service", "function"],
     buckets=_BUCKETS,
 )
-BASE_EXCEPTIONS = Counter(
+EXCEPTIONS = Counter(
     "base_exceptions",
     "Total count of exceptions raised by function and exception type",
-    labelnames=["service", "function", "exception_type"],
-)
-NOTIFY_EXCEPTIONS = Counter(
-    "notify_exceptions",
-    "Total count of non-critical exceptions raised by function and exception type",
-    labelnames=["service", "function", "exception_type"],
-)
-CRITICAL_EXCEPTIONS = Counter(
-    "critical_exceptions",
-    "Total count of critical exceptions raised by function and exception type",
-    labelnames=["service", "function", "exception_type"],
+    labelnames=["service", "function"],
 )
 INVOCATIONS_IN_PROGRESS = Gauge(
     "function_invocations_in_progress",
@@ -103,15 +93,11 @@ def reset_metrics(service: str) -> None:
     INVOCATIONS._metrics.clear()
     INVOCATION_RESPONSES._metrics.clear()
     INVOCATIONS_PROCESSING_TIME._metrics.clear()
-    BASE_EXCEPTIONS._metrics.clear()
-    NOTIFY_EXCEPTIONS._metrics.clear()
-    CRITICAL_EXCEPTIONS._metrics.clear()
+    EXCEPTIONS._metrics.clear()
     INVOCATIONS_IN_PROGRESS._metrics.clear()
     ACCUMULATED_EXCEPTIONS._metrics.clear()
     LOG_TOTAL._metrics.clear()
-    BASE_EXCEPTIONS.labels(service=service, function="", exception_type="").inc(0)
-    NOTIFY_EXCEPTIONS.labels(service=service, function="", exception_type="").inc(0)
-    CRITICAL_EXCEPTIONS.labels(service=service, function="", exception_type="").inc(0)
+    EXCEPTIONS.labels(service=service, function="").inc(0)
 
 
 class PrometheusMiddleware(BaseHTTPMiddleware):
@@ -126,7 +112,7 @@ class PrometheusMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         method = request.method
         path, is_handled_path = self.get_path(request)
-        function = f"{method} {path}"
+        function = f"{method}_{path}"
 
         if not is_handled_path:
             return await call_next(request)
@@ -135,6 +121,10 @@ class PrometheusMiddleware(BaseHTTPMiddleware):
         with self.tracer.start_as_current_span(function, context=context, kind=SpanKind.SERVER) as span:
             INVOCATIONS_IN_PROGRESS.labels(function=function, service=self.service).inc()
             INVOCATIONS.labels(function=function, service=self.service).inc()
+            EXCEPTIONS.labels(
+                function=function,
+                service=self.service,
+            )
             before_time = time.perf_counter()
             try:
                 response = await call_next(request)
@@ -144,9 +134,8 @@ class PrometheusMiddleware(BaseHTTPMiddleware):
                 if span is not None:
                     span.record_exception(e)
                     span.set_status(StatusCode.ERROR, description=f"{type(e).__name__}: {e}")
-                BASE_EXCEPTIONS.labels(
+                EXCEPTIONS.labels(
                     function=function,
-                    exception_type=type(e).__name__,
                     service=self.service,
                 ).inc()
 

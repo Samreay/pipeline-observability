@@ -23,9 +23,9 @@ async def poll() -> None:
         async with httpx.AsyncClient(timeout=1) as client:
             try:
                 tmp_endpoint = endpoint
-                if random() < 0.1:
-                    tmp_endpoint = "http://localhost:8000/slow"
-                response = await client.get(tmp_endpoint, timeout=1)
+                if random() < 0.2:
+                    tmp_endpoint += "/slow"
+                response = await client.get(tmp_endpoint, timeout=10)
                 response.raise_for_status()
                 logger.info(f"Received random number: {response.json()['value']}")
             except Exception as e:
@@ -36,7 +36,7 @@ async def poller():
     logger.info("Poller is running!")
     while True:
         await poll()
-        await asyncio.sleep(10)
+        await asyncio.sleep(0.1)
 
 
 @asynccontextmanager
