@@ -31,7 +31,6 @@ def sink_serializer(
         "time": record["time"].astimezone(tz.utc).isoformat(timespec="milliseconds"),
         "level": level,
         "caller": f"{record['file'].name}:{record['line']}",
-        # "line": record["line"],
         "message": record["message"],
     }
     LOG_TOTAL.labels(service=service, level=level).inc()

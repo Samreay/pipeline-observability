@@ -13,21 +13,7 @@ x-labels:
   logging: "alloy"
 
 services:
-  prometheus:
-    image: prom/prometheus:v3.2.1
-    container_name: prometheus
-    command:
-      - --config.file=/etc/prometheus.yaml
-      - --web.enable-remote-write-receiver
-      - --enable-feature=exemplar-storage
-      - --enable-feature=otlp-write-receiver
-    volumes:
-      - ./configs/prometheus/prometheus.yaml:/etc/prometheus.yaml
-    ports:
-      - "9090:9090"
-    networks:
-      - traces
-    logging: *default-logging
+
 
   grafana:
     image: grafana/grafana:11.5.2
@@ -49,22 +35,6 @@ services:
     logging: *default-logging
 
 
-  tempo:
-    image: grafana/tempo:2.7.1
-    container_name: tempo
-    ports:
-      - 3200:3200   # tempo http
-      - 9095:9095   # tempo grpc
-      - 14268:14268 # jaeger ingest
-      - 4318:4318   # otlp http
-      - 4317:4317   # otlp grpc
-    volumes:
-      - ./configs/tempo/tempo-local.yaml:/etc/tempo-local.yaml
-    command: ["-config.file=/etc/tempo-local.yaml"]
-    networks:
-      - traces
-    logging: *default-logging
-
   alloy:
     image: grafana/alloy:v1.7.4
     container_name: alloy
@@ -84,6 +54,23 @@ services:
       - traces
 
 
+  tempo:
+    image: grafana/tempo:2.7.1
+    container_name: tempo
+    ports:
+      - 3200:3200   # tempo http
+      - 9095:9095   # tempo grpc
+      - 14268:14268 # jaeger ingest
+      - 4318:4318   # otlp http
+      - 4317:4317   # otlp grpc
+    volumes:
+      - ./configs/tempo/tempo-local.yaml:/etc/tempo-local.yaml
+    command: ["-config.file=/etc/tempo-local.yaml"]
+    networks:
+      - traces
+    logging: *default-logging
+
+
   loki:
     image: grafana/loki:3.4
     container_name: loki
@@ -93,6 +80,18 @@ services:
     networks:
       - traces
     logging: *default-logging
+
+  mimir:
+    container_name: mimir
+    image: grafana/mimir:2.15.1
+    command: ["-ingester.native-histograms-ingestion-enabled=true", "-config.file=/etc/mimir.yaml"]
+    ports:
+      - 9009:9009
+    volumes:
+      - "./configs/mimir/mimir.yaml:/etc/mimir.yaml"
+    logging: *default-logging
+    networks:
+      - traces
 
   receiver:
     build:

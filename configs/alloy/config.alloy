@@ -8,6 +8,49 @@ discovery.docker "flog_scrape" {
 	}
 }
 
+discovery.relabel "flog_scrape" {
+	targets = []
+
+	rule {
+		source_labels = ["__meta_docker_container_name"]
+		regex         = "/(.*)"
+		target_label  = "container"
+	}
+
+	rule {
+		source_labels = ["__meta_docker_container_log_stream"]
+		target_label  = "logstream"
+	}
+
+	rule {
+		source_labels = ["__meta_docker_container_label_logging_jobname"]
+		target_label  = "job"
+	}
+}
+
+
+
+
+
+
+
+prometheus.scrape "prometheus" {
+	targets = discovery.docker.flog_scrape.targets
+	forward_to = [prometheus.remote_write.mimir.receiver]
+}
+
+
+prometheus.remote_write "mimir" {
+	endpoint {
+		url = "http://mimir:9009/api/v1/push"
+	}
+}
+
+
+
+
+
+
 loki.process "flog_scrape" {
 	forward_to = [loki.write.default.receiver]
 
@@ -31,25 +74,6 @@ loki.process "flog_scrape" {
 	}
 }
 
-discovery.relabel "flog_scrape" {
-	targets = []
-
-	rule {
-		source_labels = ["__meta_docker_container_name"]
-		regex         = "/(.*)"
-		target_label  = "container"
-	}
-
-	rule {
-		source_labels = ["__meta_docker_container_log_stream"]
-		target_label  = "logstream"
-	}
-
-	rule {
-		source_labels = ["__meta_docker_container_label_logging_jobname"]
-		target_label  = "job"
-	}
-}
 
 loki.source.docker "flog_scrape" {
 	host             = "unix:///var/run/docker.sock"
