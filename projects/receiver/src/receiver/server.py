@@ -22,6 +22,9 @@ async def read_root():
 async def read_slow():
     logger.info("Received a slowwww request for a new random number. How exciting!")
     await asyncio.sleep(4)
+    if randint(0, 100) < 50:
+        logger.error("Random error!")
+        raise ValueError("Random error!")
     return {"value": randint(0, 100)}
 
 

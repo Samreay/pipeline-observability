@@ -68,7 +68,7 @@ INVOCATIONS_PROCESSING_TIME = Histogram(
     buckets=_BUCKETS,
 )
 EXCEPTIONS = Counter(
-    "base_exceptions",
+    "exceptions",
     "Total count of exceptions raised by function and exception type",
     labelnames=["service", "function"],
 )
