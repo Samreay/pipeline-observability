@@ -37,6 +37,8 @@ discovery.relabel "flog_scrape" {
 prometheus.scrape "prometheus" {
 	targets = discovery.docker.flog_scrape.targets
 	forward_to = [prometheus.remote_write.mimir.receiver]
+	scrape_interval = "2s"
+	scrape_timeout = "1s"
 }
 
 
