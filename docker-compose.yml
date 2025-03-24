@@ -95,9 +95,9 @@ services:
 
   pushgateway:
     container_name: pushgateway
-    image: prom/pushgateway:v1.11.0
+    image: ghcr.io/zapier/prom-aggregation-gateway:v0.7.0
     ports:
-      - 9091:9091
+      - 80:80
     networks:
       - traces
     labels: *default-labels
@@ -147,15 +147,13 @@ services:
     environment:
       PREFECT_API_URL: "http://prefect:4200/api"
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://tempo:4317"
-      PUSH_GATEWAY: "http://pushgateway:9091"
-
+      PUSH_GATEWAY: "http://pushgateway:80"
+      FLOW: "some-flow"
     depends_on:
       - prefect
     networks:
       - traces
-    deploy:
-      restart_policy:
-        condition: on-failure
+    restart: always
     logging: *default-logging
     labels: *default-labels
 
@@ -169,15 +167,13 @@ services:
     environment:
       PREFECT_API_URL: "http://prefect:4200/api"
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://tempo:4317"
-      PUSH_GATEWAY: "http://pushgateway:9091"
+      PUSH_GATEWAY: "http://pushgateway:80"
       FLOW: "poll-something"
     depends_on:
       - prefect
     networks:
       - traces
-    deploy:
-      restart_policy:
-        condition: on-failure
+    restart: always
     logging: *default-logging
     labels: *default-labels
 

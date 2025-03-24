@@ -24,16 +24,19 @@ def some_subtask():
 def some_task():
     logger = get_logger()
     logger.info("Hello, world!")
-    time.sleep(2 * random())
+    time.sleep((2 * random()) ** 2)
     some_subtask()
-    if random() < 0.2:
+    rnd = random()
+    logger.info(f"Random number: {rnd}")
+    if rnd < 0.5:
+        logger.error("Random error!")
         raise ValueError("Random error!")
 
 
 @data_flow()
 def some_flow():
     configure_logging("flows")
-    if random() < 0.2:
+    if random() < 0.5:
         some_task()
     some_subtask()
 
