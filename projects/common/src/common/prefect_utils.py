@@ -16,7 +16,7 @@ from prometheus_client import (
     Counter,
     Gauge,
     Histogram,
-    push_to_gateway,
+    pushadd_to_gateway,
 )
 
 flow_registry = CollectorRegistry()
@@ -70,7 +70,7 @@ FLOWS_IN_PROGRESS = Gauge(
 
 
 def push_metrics() -> None:
-    push_to_gateway(settings.push_gateway, job=settings.service, registry=flow_registry)
+    pushadd_to_gateway(settings.push_gateway, job=settings.service, registry=flow_registry)
 
 
 def record_ending(name: str, status: str, duration: timedelta) -> None:
@@ -91,7 +91,7 @@ def on_error(flow: Flow, flow_run: FlowRun, state: State):
 TASK_DEFAULT_KWARGS = {
     "retries": 2,
     "retry_delay_seconds": 10,
-    "log_prints": True,
+    "log_prints": False,
     "timeout_seconds": 3600,  # An hour timeout per task
     "cache_result_in_memory": False,
 }
@@ -102,7 +102,7 @@ FLOW_DEFAULT_KWARGS = {
     "on_crashed": [on_error],
     "on_failure": [on_error],
     "on_completion": [on_finish],
-    "log_prints": True,
+    "log_prints": False,
     "cache_result_in_memory": False,
 }
 

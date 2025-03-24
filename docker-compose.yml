@@ -159,6 +159,29 @@ services:
     logging: *default-logging
     labels: *default-labels
 
+  prefect_flow_2:
+    build:
+      context: .
+      args:
+        PACKAGE: flows
+      dockerfile: Dockerfile
+    container_name: prefect_flow_2
+    environment:
+      PREFECT_API_URL: "http://prefect:4200/api"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://tempo:4317"
+      PUSH_GATEWAY: "http://pushgateway:9091"
+      FLOW: "poll-something"
+    depends_on:
+      - prefect
+    networks:
+      - traces
+    deploy:
+      restart_policy:
+        condition: on-failure
+    logging: *default-logging
+    labels: *default-labels
+
+
   receiver:
     build:
       context: .

@@ -19,9 +19,190 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
+  "id": 2,
   "links": [],
   "panels": [
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 16,
+        "x": 0,
+        "y": 0
+      },
+      "id": 10,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95, sum(rate(flow_processing_time_bucket{flow=~\"$flow\"}[$__rate_interval])) by (le))",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "{{flow}}",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Flow Duration Over $interval",
+      "type": "histogram"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 21,
+        "w": 8,
+        "x": 16,
+        "y": 0
+      },
+      "id": 8,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "increase(flow_status_total{flow=~\"$flow\"}[60m])",
+          "instant": false,
+          "legendFormat": "{{flow}}  {{status}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Flow Status in last hour",
+      "type": "timeseries"
+    },
     {
       "datasource": {
         "type": "prometheus",
@@ -89,7 +270,7 @@
         "h": 13,
         "w": 8,
         "x": 0,
-        "y": 0
+        "y": 8
       },
       "id": 7,
       "interval": "5s",
@@ -118,7 +299,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "flow_invocations_total",
+          "expr": "flow_invocations_total{flow=~\"$flow\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -193,15 +374,15 @@
       },
       "gridPos": {
         "h": 13,
-        "w": 5,
-        "x": 12,
-        "y": 0
+        "w": 8,
+        "x": 8,
+        "y": 8
       },
-      "id": 8,
+      "id": 9,
       "options": {
         "legend": {
           "calcs": [],
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "right",
           "showLegend": true
         },
@@ -218,15 +399,19 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "editorMode": "code",
-          "expr": "increase(flow_status_total{}[60m])",
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "flows_in_progress{flow=~\"$flow\"}",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "{{flow}}  {{status}}",
+          "legendFormat": "{{flow}}",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
-      "title": "Flow Status in last hour",
+      "title": "Flows in Progress",
       "type": "timeseries"
     },
     {
@@ -294,7 +479,7 @@
         "h": 4,
         "w": 24,
         "x": 0,
-        "y": 13
+        "y": 21
       },
       "id": 6,
       "options": {
@@ -320,7 +505,7 @@
           },
           "direction": "backward",
           "editorMode": "code",
-          "expr": "sum(count_over_time({service_name=~\"$service_name\" } |~ \"$search\" | json | flow_name=~\".+\"[$__interval]))",
+          "expr": "sum(count_over_time({flow_name=~\"$flow\" } |~ \"$search\"[$__interval]))",
           "queryType": "range",
           "refId": "A"
         }
@@ -521,7 +706,7 @@
         "h": 25,
         "w": 24,
         "x": 0,
-        "y": 17
+        "y": 25
       },
       "id": 2,
       "maxDataPoints": "",
@@ -553,7 +738,7 @@
           },
           "direction": "backward",
           "editorMode": "code",
-          "expr": "{service_name=~\"$service_name\"} |~ \"$search\" | json | flow_name=~\".+\"",
+          "expr": "{flow_name=~\"$flow\"} |~ \"$search\" | json",
           "queryType": "range",
           "refId": "A"
         }
@@ -679,7 +864,7 @@
         "name": "flow",
         "options": [],
         "query": {
-          "label": "service_name",
+          "label": "flow_name",
           "refId": "LokiVariableQueryEditor-VariableQuery",
           "stream": "",
           "type": 1
@@ -691,7 +876,7 @@
     ]
   },
   "time": {
-    "from": "now-5m",
+    "from": "now-60m",
     "to": "now"
   },
   "timepicker": {},
