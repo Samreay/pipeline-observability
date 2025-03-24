@@ -50,10 +50,14 @@
             },
             "insertNulls": false,
             "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
-              "type": "linear"
+              "log": 2,
+              "type": "log"
             },
             "showPoints": "auto",
             "spanNulls": false,
@@ -219,7 +223,7 @@
           "refId": "A"
         }
       ],
-      "title": "Flow Status in last hour",
+      "title": "Flow Status Rate (per second)",
       "type": "timeseries"
     },
     {
@@ -317,8 +321,9 @@
             "uid": "prometheus"
           },
           "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "flow_invocations_total{flow=~\"$flow\"}",
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "3600 * rate(flow_invocations_total{flow=~\"$flow\"}[$__rate_interval])",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -328,7 +333,7 @@
           "useBackend": false
         }
       ],
-      "title": "Flow Runs",
+      "title": "Flow Runs Rate (runs per hour)",
       "type": "timeseries"
     },
     {
