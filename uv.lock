@@ -416,12 +416,16 @@ source = { editable = "projects/flows" }
 dependencies = [
     { name = "common" },
     { name = "prefect" },
+    { name = "prometheus-client" },
+    { name = "pydantic-settings" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "common", editable = "projects/common" },
     { name = "prefect", specifier = ">=3.2.12" },
+    { name = "prometheus-client", specifier = ">=0.21.1" },
+    { name = "pydantic-settings", specifier = ">=2.8.1" },
 ]
 
 [[package]]

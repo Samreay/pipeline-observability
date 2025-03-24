@@ -19,7 +19,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 2,
+  "id": 1,
   "links": [],
   "panels": [
     {
@@ -87,7 +87,7 @@
       },
       "gridPos": {
         "h": 13,
-        "w": 12,
+        "w": 8,
         "x": 0,
         "y": 0
       },
@@ -118,17 +118,17 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "function_invocations_in_progress{service=~\"$service_name\", function!=\"GET_/metrics\"}",
+          "expr": "flow_invocations_total",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "{{service}}  {{function}}",
+          "legendFormat": "{{flow}}",
           "range": true,
           "refId": "A",
           "useBackend": false
         }
       ],
-      "title": "Invocations in progress",
+      "title": "Flow Runs",
       "type": "timeseries"
     },
     {
@@ -193,7 +193,7 @@
       },
       "gridPos": {
         "h": 13,
-        "w": 12,
+        "w": 5,
         "x": 12,
         "y": 0
       },
@@ -219,14 +219,14 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "increase(exceptions_total{function!~\"GET_/metrics\", service=~\"$service_name\"}[5s])",
+          "expr": "increase(flow_status_total{}[60m])",
           "instant": false,
-          "legendFormat": "{{service}}  {{function}}",
+          "legendFormat": "{{flow}}  {{status}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Exceptions Raised in 5s",
+      "title": "Flow Status in last hour",
       "type": "timeseries"
     },
     {
@@ -320,7 +320,7 @@
           },
           "direction": "backward",
           "editorMode": "code",
-          "expr": "sum(count_over_time({service_name=~\"$service_name\"} |~ \"$search\"[$__interval]))",
+          "expr": "sum(count_over_time({service_name=~\"$service_name\" } |~ \"$search\" | json | flow_name=~\".+\"[$__interval]))",
           "queryType": "range",
           "refId": "A"
         }
@@ -662,9 +662,7 @@
       {
         "allowCustomValue": false,
         "current": {
-          "text": [
-            "All"
-          ],
+          "text": "All",
           "value": [
             "$__all"
           ]
@@ -676,9 +674,9 @@
         "definition": "",
         "description": "",
         "includeAll": true,
-        "label": "Service Name",
+        "label": "Flow",
         "multi": true,
-        "name": "service_name",
+        "name": "flow",
         "options": [],
         "query": {
           "label": "service_name",
@@ -699,7 +697,7 @@
   "timepicker": {},
   "timezone": "",
   "title": "Flow Dashboard",
-  "uid": "asdasd",
+  "uid": "flows",
   "version": 1,
   "weekStart": ""
 }

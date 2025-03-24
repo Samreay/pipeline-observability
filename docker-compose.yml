@@ -93,6 +93,15 @@ services:
     networks:
       - traces
 
+  pushgateway:
+    container_name: pushgateway
+    image: prom/pushgateway:v1.11.0
+    ports:
+      - 9091:9091
+    networks:
+      - traces
+    labels: *default-labels
+
   postgres:
     container_name: postgres
     image: postgres:17
@@ -128,25 +137,6 @@ services:
     networks:
       - traces
 
-  prefect_worker:
-    container_name: prefect_worker
-    build:
-      context: .
-      args:
-        PACKAGE: flows
-      dockerfile: Dockerfile
-    command: >
-      bash -c "sleep 3 && prefect work-pool create --set-as-default --type process worker; prefect worker start --pool worker --limit 8"
-    environment:
-      PREFECT_API_URL: "http://prefect:4200/api"
-      OTEL_EXPORTER_OTLP_ENDPOINT: "http://tempo:4317"
-    logging: *default-logging
-    labels: *default-labels
-    depends_on:
-      - prefect
-    networks:
-      - traces
-
   prefect_flow:
     build:
       context: .
@@ -157,9 +147,10 @@ services:
     environment:
       PREFECT_API_URL: "http://prefect:4200/api"
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://tempo:4317"
+      PUSH_GATEWAY: "http://pushgateway:9091"
+
     depends_on:
       - prefect
-      - prefect_worker
     networks:
       - traces
     deploy:

@@ -39,6 +39,7 @@ prometheus.scrape "prometheus" {
 	forward_to = [prometheus.remote_write.mimir.receiver]
 	scrape_interval = "2s"
 	scrape_timeout = "1s"
+	honor_labels = true
 }
 
 
@@ -61,6 +62,7 @@ loki.process "flog_scrape" {
 		expressions = {
 			level = "",
 			service = "",
+			flow_name = "",
 		}
 	}
 

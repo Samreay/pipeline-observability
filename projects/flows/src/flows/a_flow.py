@@ -1,33 +1,30 @@
 from random import random
 import time
-from common.prefect_utils import trace_func
-from prefect import flow, task
+from common.prefect_utils import data_flow, data_task
 
 from common.log import configure_logging, get_logger
 
 
-@task
-@trace_func("flows")
+@data_task()
 def some_subtask():
     logger = get_logger()
     logger.info("Hello, subtask!")
-    time.sleep(0.1)
-    if random() < 0.2:
-        raise ValueError("Random error!")
+    time.sleep(random())
+
     return 42
 
 
-@task
-@trace_func("flows")
+@data_task()
 def some_task():
     logger = get_logger()
     logger.info("Hello, world!")
     time.sleep(1)
-    return some_subtask()
+    some_subtask()
+    if random() < 0.2:
+        raise ValueError("Random error!")
 
 
-@flow
-@trace_func("flows")
+@data_flow()
 def some_flow():
     configure_logging("flows")
     some_task()
@@ -35,4 +32,4 @@ def some_flow():
 
 
 if __name__ == "__main__":
-    some_flow.serve(name="some-flow", interval=5)
+    some_flow.serve(name="some-flow", interval=2)
