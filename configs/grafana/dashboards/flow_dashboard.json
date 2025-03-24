@@ -19,7 +19,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
+  "id": 2,
   "links": [],
   "panels": [
     {
@@ -553,7 +553,7 @@
           },
           "direction": "backward",
           "editorMode": "code",
-          "expr": "{service_name=~\"$service_name\"} |~ \"$search\" | json | flow_name=\"\"",
+          "expr": "{service_name=~\"$service_name\"} |~ \"$search\" | json | flow_name=~\".+\"",
           "queryType": "range",
           "refId": "A"
         }
@@ -578,28 +578,44 @@
           "options": {
             "excludeByName": {
               "Line": true,
+              "caller": true,
               "error_traceback": true,
               "error_type": true,
               "id": true,
               "labelTypes": true,
               "labels": true,
               "line": true,
+              "service": true,
               "spanID": true,
               "span_id": true,
+              "task_run_id": true,
               "time": true,
               "trace_id": true,
               "tsNs": true
             },
             "includeByName": {},
             "indexByName": {
-              "Line": 4,
+              "Line": 3,
               "Time": 0,
-              "id": 7,
-              "labelTypes": 6,
-              "labels": 3,
-              "service_name": 1,
-              "traceID": 2,
-              "tsNs": 5
+              "caller": 11,
+              "flow_name": 13,
+              "flow_run_id": 14,
+              "flow_run_name": 17,
+              "id": 6,
+              "labelTypes": 5,
+              "labels": 2,
+              "level": 10,
+              "message": 20,
+              "service": 8,
+              "spanID": 7,
+              "span_id": 19,
+              "task_name": 16,
+              "task_run_id": 12,
+              "task_run_name": 15,
+              "time": 9,
+              "traceID": 1,
+              "trace_id": 18,
+              "tsNs": 4
             },
             "renameByName": {
               "Time": ""
@@ -682,8 +698,8 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Glorious Dashboard",
-  "uid": "liz0yRCZz",
-  "version": 7,
+  "title": "Flow Dashboard",
+  "uid": "asdasd",
+  "version": 1,
   "weekStart": ""
 }

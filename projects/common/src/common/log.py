@@ -1,8 +1,9 @@
+from collections.abc import Callable
 import json
 import logging
 import sys
 import traceback
-from functools import partial
+from functools import partial, wraps
 from sys import stderr
 from types import FrameType
 from typing import TYPE_CHECKING, TextIO, cast
@@ -124,3 +125,30 @@ def configure_logging(service: str) -> None:
     logging.basicConfig(handlers=[InterceptHandler()], level=logging.INFO)
     logger.remove()
     logger.add(sink=partial(sink_serializer, service, file=sys.stderr))
+
+
+def get_logger() -> logging.Logger:
+    extra: dict[str, str] = {}
+    try:
+        from prefect import get_run_logger
+
+        prefect_logger = get_run_logger()
+        extra = getattr(prefect_logger, "extra")
+
+    except Exception:
+        return logger  # type: ignore
+
+    def intercept_prefect_log(func: Callable, level: str):
+        @wraps(func)
+        def wrapper(msg, *args, **kwargs):
+            # record = func(msg, *args, **kwargs)
+            logger.bind(**extra).log(level.upper(), msg)
+
+        return wrapper
+
+    # Create an intercept for the warning, error, and exception functions
+    for level in ["debug", "info", "warning", "error", "exception"]:
+        fn = getattr(prefect_logger, level)
+        setattr(prefect_logger, level, intercept_prefect_log(fn, level))
+
+    return prefect_logger  # type: ignore

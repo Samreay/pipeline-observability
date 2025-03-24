@@ -9,6 +9,7 @@ resolution-markers = [
 [manifest]
 members = [
     "common",
+    "flows",
     "pipeline-observability",
     "poller",
     "receiver",
@@ -406,6 +407,21 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/dc/9c/0b15fb47b464e1b663b1acd1253a062aa5feecb07d4e597daea542ebd2b5/filelock-3.17.0.tar.gz", hash = "sha256:ee4e77401ef576ebb38cd7f13b9b28893194acc20a8e68e18730ba9c0e54660e", size = 18027 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/89/ec/00d68c4ddfedfe64159999e5f8a98fb8442729a63e2077eb9dcd89623d27/filelock-3.17.0-py3-none-any.whl", hash = "sha256:533dc2f7ba78dc2f0f531fc6c4940addf7b70a481e269a5a3b93be94ffbe8338", size = 16164 },
+]
+
+[[package]]
+name = "flows"
+version = "0.1.0"
+source = { editable = "projects/flows" }
+dependencies = [
+    { name = "common" },
+    { name = "prefect" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "common", editable = "projects/common" },
+    { name = "prefect", specifier = ">=3.2.12" },
 ]
 
 [[package]]

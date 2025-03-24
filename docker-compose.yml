@@ -93,6 +93,81 @@ services:
     networks:
       - traces
 
+  postgres:
+    container_name: postgres
+    image: postgres:17
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: prefect
+    ports:
+      - 5432:5432
+    networks:
+      - traces
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  prefect:
+    container_name: prefect
+    build:
+      context: .
+      args:
+        PACKAGE: flows
+      dockerfile: Dockerfile
+    command: prefect server start --host 0.0.0.0
+    depends_on:
+      - postgres
+    ports:
+      - 4200:4200
+    environment:
+      PREFECT_DEFAULT_WORK_POOL_NAME: "worker"
+      PREFECT_API_DATABASE_CONNECTION_URL: "postgresql+asyncpg://postgres:postgres@postgres:5432/prefect"
+      PREFECT_API_URL: "http://localhost:4200/api"
+      PREFECT_SERVER_API_HOST: "127.0.0.1"
+    logging: *default-logging
+    networks:
+      - traces
+
+  prefect_worker:
+    container_name: prefect_worker
+    build:
+      context: .
+      args:
+        PACKAGE: flows
+      dockerfile: Dockerfile
+    command: >
+      bash -c "sleep 3 && prefect work-pool create --set-as-default --type process worker; prefect worker start --pool worker --limit 8"
+    environment:
+      PREFECT_API_URL: "http://prefect:4200/api"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://tempo:4317"
+    logging: *default-logging
+    labels: *default-labels
+    depends_on:
+      - prefect
+    networks:
+      - traces
+
+  prefect_flow:
+    build:
+      context: .
+      args:
+        PACKAGE: flows
+      dockerfile: Dockerfile
+    container_name: prefect_flow
+    environment:
+      PREFECT_API_URL: "http://prefect:4200/api"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://tempo:4317"
+    depends_on:
+      - prefect
+      - prefect_worker
+    networks:
+      - traces
+    deploy:
+      restart_policy:
+        condition: on-failure
+    logging: *default-logging
+    labels: *default-labels
+
   receiver:
     build:
       context: .
@@ -124,12 +199,13 @@ services:
       PORT: 8002
       RECEIVER_ENDPOINT: http://receiver:8001
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://tempo:4317"
-
     networks:
       - traces
     logging: *default-logging
     labels: *default-labels
 
+volumes:
+  postgres-data:
 
 networks:
   traces:

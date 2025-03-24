@@ -36,7 +36,7 @@ async def poller():
     logger.info("Poller is running!")
     while True:
         await poll()
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(10)
 
 
 @asynccontextmanager

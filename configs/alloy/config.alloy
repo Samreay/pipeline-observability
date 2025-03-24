@@ -68,6 +68,7 @@ loki.process "flog_scrape" {
 		values = {
 			level = "",
 			service = "",
+			flow_name = "",
 		}
 	}
 
