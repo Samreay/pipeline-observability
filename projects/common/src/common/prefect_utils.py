@@ -60,7 +60,7 @@ FLOW_INVOCATIONS = Counter(
 FLOW_PROCESSING_TIME = Histogram(
     "flow_processing_time",
     "Histogram of function invocation processing time by path (in seconds)",
-    labelnames=["flow"],
+    labelnames=["flow", "status"],
     buckets=_BUCKETS,
     registry=interim_registry,
 )
@@ -149,26 +149,34 @@ def data_flow(**kwargs):
             if name is None:
                 name = func.__name__
             with tracer.start_as_current_span(name, kind=SpanKind.SERVER) as span:
+                start = time.perf_counter()
+                observed_time = False
                 try:
                     FLOW_INVOCATIONS.labels(name).inc()
                     push_metrics(initial_registry)
-                    start = time.perf_counter()
                     result = func(*args, **kwargs)
                     elapsed = time.perf_counter() - start
-                    FLOW_PROCESSING_TIME.labels(name).observe(elapsed)
 
                     # Note because flows can crash, we don't handle the post-execution
                     # prometheus here
                     if isinstance(result, State):
+                        FLOW_PROCESSING_TIME.labels(name, result.type.value).observe(elapsed)
+                        observed_time = True
                         if result.type != StateType.COMPLETED:
                             span.set_status(StatusCode.OK)
                         else:
                             span.set_status(StatusCode.ERROR, description=result.message)
                     else:
+                        FLOW_PROCESSING_TIME.labels(name, "COMPLETED").observe(elapsed)
+                        observed_time = True
                         span.set_status(StatusCode.OK)
                     push_metrics(interim_registry)
                     return result
                 except Exception as e:
+                    elapsed = time.perf_counter() - start
+                    if not observed_time:
+                        FLOW_PROCESSING_TIME.labels(name, "FAILED").observe(elapsed)
+                        push_metrics(interim_registry)
                     span.record_exception(e)
                     span.set_status(StatusCode.ERROR, description=f"{type(e).__name__}: {e}")
                     raise
